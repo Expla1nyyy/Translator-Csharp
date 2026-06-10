@@ -13,8 +13,9 @@ public enum tCat
 /// </summary>
 public enum tType
 {
-    Undefined,
-    Int
+    None,
+    Int,
+    Bool
 }
 
 /// <summary>
@@ -81,36 +82,6 @@ public class NameTable
         {
             throw new Exception($"Ошибка: Идентификатор с именем '{name}' уже существует.");
         }
-    }
-
-    /// <summary>
-    /// Устанавливает тип идентификатора. Если тип уже определён и не совпадает — ошибка.
-    /// </summary>
-    /// <param name="name">Имя идентификатора.</param>
-    /// <param name="type">Новый тип.</param>
-    public void SetType(string name, tType type)
-    {
-        for (int i = 0; i < identifiers.Count; i++)
-        {
-            if (identifiers[i].Name == name)
-            {
-                if (identifiers[i].Type == tType.Undefined)
-                {
-                    // Тип ещё не определён — устанавливаем
-                    identifiers[i] = new Identifier(name, type, identifiers[i].Category);
-                }
-                else if (identifiers[i].Type != type)
-                {
-                    // Тип уже определён и не совпадает — ошибка
-                    throw new Exception(
-                        $"Ошибка: Нельзя присвоить значение другого типа переменной '{name}'. " +
-                        $"Ожидался {identifiers[i].Type}, получен {type}.");
-                }
-                // Иначе типы совпадают — всё хорошо
-                return;
-            }
-        }
-        throw new Exception($"Ошибка: Переменная '{name}' не найдена.");
     }
 
     /// <summary>

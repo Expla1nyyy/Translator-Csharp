@@ -3,11 +3,14 @@
 /// </summary>
 public enum Lexems
 {
-    None, Name,
-    Integer,
-    Begin, End, Var, Print, Assign,
-    LeftBracket, RightBracket, Semi, Comma, EOF,
-    Sum, Subtract, Multiplication, Division
+    None, Name, 
+    True, False, Logical, Integer,
+    Begin, End, Var, Print, Assign, If, While, EndIf, EndWhile, Equal, NotEqual, Less, LessOrEqual, Greater, GreaterOrEqual, Then, ElseIf,Else,Do,LeftBracket, RightBracket, Semi, Comma, EOF, Colon, Remainder,
+    Disjunction, Conjunction, Implication, Negation, BinaryOp,
+    Sum,
+    Subtract,
+    Multiplication,
+    Division
 }
 
 // <summary>
@@ -57,18 +60,30 @@ public static class LexicalAnalyzer
     private const int MaxIdentifierLength = 50;
 
     /// <summary>
-    /// Инициализирует лексический анализатор с указанным кодом.
+    /// Инициализирует лексический анализатор с указанным путем к файлу.
     /// </summary>
-    /// <param name="code">Исходный код.</param>
+    /// <param name="code">Исходный файл.</param>
     public static void Initialize(string code)
     {
-        keywords = new Keyword[10];
+        keywords = new Keyword[20];
         keywordsPointer = 0;
 
         AddKeyword("Begin", Lexems.Begin);
         AddKeyword("End", Lexems.End);
         AddKeyword("Var", Lexems.Var);
         AddKeyword("Print", Lexems.Print);
+        AddKeyword("Logical", Lexems.Logical);
+        AddKeyword("True", Lexems.True);
+        AddKeyword("False", Lexems.False);
+        AddKeyword("Integer", Lexems.Integer);
+        AddKeyword("If", Lexems.If);
+        AddKeyword("While", Lexems.While);
+        AddKeyword("EndIf", Lexems.EndIf);
+        AddKeyword("EndWhile", Lexems.EndWhile);
+        AddKeyword("Then", Lexems.Then);
+        AddKeyword("ElseIf", Lexems.ElseIf);
+        AddKeyword("Else", Lexems.Else);
+        AddKeyword("Do", Lexems.Do);
 
         Reader.Initialize(code);
         currentLexem = Lexems.None;
@@ -81,10 +96,6 @@ public static class LexicalAnalyzer
     /// <param name="lex">Связанная лексема.</param>
     private static void AddKeyword(string keyword, Lexems lex)
     {
-        if (keywordsPointer >= keywords.Length)
-        {
-            Array.Resize(ref keywords, keywords.Length * 2);
-        }
         Keyword kw = new Keyword { word = keyword, lex = lex };
         keywords[keywordsPointer++] = kw;
     }
@@ -155,7 +166,8 @@ public static class LexicalAnalyzer
             }
             else
             {
-                throw new Exception($"Ошибка: Недопустимый символ: {Reader.CurrentSymbol}, ожидалось '='");
+                currentName = null;
+                currentLexem = Lexems.Colon;
             }
         }
         else if (Reader.CurrentSymbol == ',')
@@ -188,6 +200,90 @@ public static class LexicalAnalyzer
             currentLexem = Lexems.Division;
             Reader.ReadNextSymbol();
         }
+        else if (Reader.CurrentSymbol == '%')
+        {
+            currentName = null;
+            currentLexem = Lexems.Remainder;
+            Reader.ReadNextSymbol();
+        }
+        else if (Reader.CurrentSymbol == '!')
+        {
+            Reader.ReadNextSymbol(); 
+            if (Reader.CurrentSymbol == '=')
+            {
+                currentName = null;
+                Reader.ReadNextSymbol();
+                currentLexem = Lexems.NotEqual;
+            }
+            else
+            {
+                currentName = null;
+                currentLexem = Lexems.Negation;
+            }
+        }
+        else if (Reader.CurrentSymbol == '&')
+        {
+            currentName = null;
+            currentLexem = Lexems.Conjunction;
+            Reader.ReadNextSymbol();
+        }
+        else if (Reader.CurrentSymbol == '|')
+        {
+            currentName = null;
+            currentLexem = Lexems.Disjunction;
+            Reader.ReadNextSymbol();
+
+        }
+        else if (Reader.CurrentSymbol == '^')
+        {
+            currentName = null;
+            currentLexem = Lexems.Implication;
+            Reader.ReadNextSymbol();
+        }
+        else if(Reader.CurrentSymbol == '<')
+        {
+            Reader.ReadNextSymbol();
+            if (Reader.CurrentSymbol == '=')
+            {
+                currentName = null;
+                Reader.ReadNextSymbol();
+                currentLexem = Lexems.LessOrEqual;
+            }
+            else
+            {
+                currentName = null;
+                currentLexem = Lexems.Less;
+            }
+        }
+        else if (Reader.CurrentSymbol == '>')
+        {
+            Reader.ReadNextSymbol();
+            if (Reader.CurrentSymbol == '=')
+            {
+                currentName = null;
+                Reader.ReadNextSymbol();
+                currentLexem = Lexems.GreaterOrEqual;
+            }
+            else
+            {
+                currentName = null;
+                currentLexem = Lexems.Greater;
+            }
+        }
+        else if (Reader.CurrentSymbol == '=')
+        {
+            Reader.ReadNextSymbol(); 
+            if (Reader.CurrentSymbol == '=')
+            {
+                currentName = null;
+                Reader.ReadNextSymbol();
+                currentLexem = Lexems.Equal;
+            }
+            else
+            {
+                throw new Exception($"Ошибка: Недопустимый символ: {Reader.CurrentSymbol}");
+            }
+        }
         else
         {
             throw new Exception($"Ошибка: Недопустимый символ: {Reader.CurrentSymbol}");
@@ -206,7 +302,7 @@ public static class LexicalAnalyzer
         while (char.IsDigit(Reader.CurrentSymbol));
 
         currentName = integerValue;
-        currentLexem = Lexems.Integer;
+        currentLexem = Lexems.Integer; 
     }
 
     /// <summary>
@@ -238,7 +334,7 @@ public static class LexicalAnalyzer
     /// Текущая лексема, которая анализируется
     /// </summary>
     public static Lexems CurrentLexem => currentLexem;
-
+    
     /// <summary>
     /// Текущее имя идентификатора
     /// </summary>

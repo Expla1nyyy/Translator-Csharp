@@ -22,15 +22,7 @@ public static class Reader
     /// <summary>
     /// Текущий читаемый символ.
     /// </summary>
-    public static char CurrentSymbol
-    {
-        get
-        {
-            if (string.IsNullOrEmpty(code) || currentSymbol < 0 || currentSymbol >= code.Length)
-                return EndOfFile;
-            return code[currentSymbol];
-        }
-    }
+    public static char CurrentSymbol => code[currentSymbol];
 
     /// <summary>
     /// Константа, представляющая конец файла.
@@ -43,11 +35,8 @@ public static class Reader
     public static void ReadNextSymbol()
     {
         currentSymbol++;
-        if (string.IsNullOrEmpty(code) || currentSymbol >= code.Length)
-        {
-            currentSymbol = code != null ? code.Length : 0;
+        if (currentSymbol >= code.Length)
             return;
-        }
 
         if (code[currentSymbol] == EndOfFile)
         {
@@ -72,7 +61,7 @@ public static class Reader
     /// <summary>
     /// Инициализирует чтение из указанного файла.
     /// </summary>
-    /// <param name="code">Исходный код для чтения.</param>
+    /// <param name="code">Исходный файл для чтения.</param>
     public static void Initialize(string code)
     {
         Reader.code = code;
@@ -81,4 +70,5 @@ public static class Reader
         characterPositionInLine = 0;
         ReadNextSymbol();
     }
+
 }
