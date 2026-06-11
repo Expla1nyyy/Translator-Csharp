@@ -21,8 +21,18 @@ public static class Reader
 
     /// <summary>
     /// Текущий читаемый символ.
+    /// </summary>/// <summary>
+    /// Текущий читаемый символ.
     /// </summary>
-    public static char CurrentSymbol => code[currentSymbol];
+    public static char CurrentSymbol
+    {
+        get
+        {
+            if (currentSymbol >= code.Length || currentSymbol < 0)
+                return EndOfFile;
+            return code[currentSymbol];
+        }
+    }
 
     /// <summary>
     /// Константа, представляющая конец файла.

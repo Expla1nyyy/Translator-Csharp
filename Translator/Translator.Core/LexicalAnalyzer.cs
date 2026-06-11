@@ -157,19 +157,19 @@ public static class LexicalAnalyzer
         }
         else if (Reader.CurrentSymbol == ':')
         {
+            currentName = null;
             Reader.ReadNextSymbol();
-            if (Reader.CurrentSymbol == '=')
-            {
-                currentName = null;
-                Reader.ReadNextSymbol();
-                currentLexem = Lexems.Assign;
-            }
-            else
-            {
-                currentName = null;
-                currentLexem = Lexems.Colon;
-            }
+            currentLexem = Lexems.Colon;
         }
+
+        else if (Reader.CurrentSymbol == '=')
+        {
+            currentName = null;
+            Reader.ReadNextSymbol();
+            currentLexem = Lexems.Assign;
+        }
+
+
         else if (Reader.CurrentSymbol == ',')
         {
             currentName = null;
@@ -208,7 +208,7 @@ public static class LexicalAnalyzer
         }
         else if (Reader.CurrentSymbol == '!')
         {
-            Reader.ReadNextSymbol(); 
+            Reader.ReadNextSymbol();
             if (Reader.CurrentSymbol == '=')
             {
                 currentName = null;
@@ -240,7 +240,7 @@ public static class LexicalAnalyzer
             currentLexem = Lexems.Implication;
             Reader.ReadNextSymbol();
         }
-        else if(Reader.CurrentSymbol == '<')
+        else if (Reader.CurrentSymbol == '<')
         {
             Reader.ReadNextSymbol();
             if (Reader.CurrentSymbol == '=')
@@ -272,7 +272,7 @@ public static class LexicalAnalyzer
         }
         else if (Reader.CurrentSymbol == '=')
         {
-            Reader.ReadNextSymbol(); 
+            Reader.ReadNextSymbol();
             if (Reader.CurrentSymbol == '=')
             {
                 currentName = null;

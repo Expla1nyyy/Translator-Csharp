@@ -26,13 +26,8 @@ namespace Translator.Core
             CodeGenerator.DeclareVariables(nameTable);
 
             CodeGenerator.DeclareStackAndCodeSegments();
-            CheckLexem(Lexems.Semi);
-            CheckLexem(Lexems.Begin);
 
             ParseInstructionSequence();
-
-            CheckLexem(Lexems.End);
-            CheckLexem(Lexems.Semi);
 
             ParsePrintInstruction();
             CodeGenerator.DeclareMainProcedureEnd();
@@ -47,8 +42,7 @@ namespace Translator.Core
         private void ParsePrintInstruction()
         {
             CheckLexem(Lexems.Print);
-            while (true)
-            {
+         
                 if (LexicalAnalyzer.CurrentLexem == Lexems.Name)
                 {
                     Identifier x = nameTable.FindByName(LexicalAnalyzer.CurrentName);
@@ -57,12 +51,9 @@ namespace Translator.Core
                     CodeGenerator.AddInstruction("CALL PRINT");
                     //CodeGenerator.AddInstruction("CALL PRINT_SPACE");
                     CodeGenerator.AddInstruction("pop ax");
-                    LexicalAnalyzer.ParseNextLexem();
-                }
-                else if (LexicalAnalyzer.CurrentLexem == Lexems.Semi) break;
-                else if (LexicalAnalyzer.CurrentLexem == Lexems.Comma) LexicalAnalyzer.ParseNextLexem();
+                } 
                 else Error();
-            }
+     
         }
 
         /// <summary>
@@ -81,42 +72,19 @@ namespace Translator.Core
                     string variableName = LexicalAnalyzer.CurrentName;
                     LexicalAnalyzer.ParseNextLexem();
 
-                    if (LexicalAnalyzer.CurrentLexem == Lexems.Colon)
-                    {
-                        LexicalAnalyzer.ParseNextLexem();
-
-                        if (LexicalAnalyzer.CurrentLexem == Lexems.Logical)
-                        {
-                            variables.Add(variableName);
-                            variables.ForEach(variable => nameTable.AddIdentifier(variable, tCat.Var, tType.Bool));
-                            variables.Clear();
-                            LexicalAnalyzer.ParseNextLexem();
-                        }
-                        else if (LexicalAnalyzer.CurrentLexem == Lexems.Integer)
-                        {
-                            variables.Add(variableName);
-                            variables.ForEach(variable => nameTable.AddIdentifier(variable, tCat.Var, tType.Int));
-                            variables.Clear();
-                            LexicalAnalyzer.ParseNextLexem();
-                        }
-                        else
-                        {
-                            Error();
-                        }
-                    }
-                    else if (LexicalAnalyzer.CurrentLexem == Lexems.Comma)
+                 
+                    if (LexicalAnalyzer.CurrentLexem == Lexems.Comma)
                     {
                         variables.Add(variableName);
                         LexicalAnalyzer.ParseNextLexem();
                     }
                     else
                     {
-                        Error();
+                        variables.Add(variableName);
+                        variables.ForEach(variable => nameTable.AddIdentifier(variable, tCat.Var, tType.Int));
+                        variables.Clear();
+                        break;
                     }
-                }
-                else
-                {
-                    break;
                 }
             }
         }
@@ -127,9 +95,8 @@ namespace Translator.Core
         private void ParseInstructionSequence()
         {
             ParseInstruction();
-            while (LexicalAnalyzer.CurrentLexem == Lexems.Semi)
+            while (LexicalAnalyzer.CurrentLexem != Lexems.Print)
             {
-                LexicalAnalyzer.ParseNextLexem();
                 ParseInstruction();
             }
         }
